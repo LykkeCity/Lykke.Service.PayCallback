@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Lykke.Service.PayCallback.Client.Api;
 using Lykke.Service.PayCallback.Client.Models;
 using Microsoft.Extensions.PlatformAbstractions;
 using Refit;
@@ -10,7 +11,7 @@ namespace Lykke.Service.PayCallback.Client
     public class PayCallbackClient : IPayCallbackClient, IDisposable
     {
         private readonly HttpClient _httpClient;
-        private readonly IPayCallbackClient _payCallbackClient;
+        private readonly ICallbacksApi _callbackApi;
         private readonly ApiRunner _runner;
 
         public PayCallbackClient(PayCallbackServiceClientSettings settings)
@@ -33,7 +34,7 @@ namespace Lykke.Service.PayCallback.Client
                 }
             };
 
-            _payCallbackClient = RestService.For<IPayCallbackClient>(_httpClient);
+            _callbackApi = RestService.For<ICallbacksApi>(_httpClient);
             _runner = new ApiRunner();
         }
 
@@ -44,7 +45,7 @@ namespace Lykke.Service.PayCallback.Client
 
         public async Task AddPaymentCallback(CreatePaymentCallbackModel request)
         {
-            await _runner.RunAsync(() => _payCallbackClient.AddPaymentCallback(request));
+            await _runner.RunAsync(() => _callbackApi.AddPaymentCallback(request));
         }
     }
 }
