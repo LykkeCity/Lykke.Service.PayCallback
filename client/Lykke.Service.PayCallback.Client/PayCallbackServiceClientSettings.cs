@@ -1,6 +1,4 @@
-using System;
-
-namespace Lykke.Service.PayCallback.Client 
+﻿namespace Lykke.Service.PayCallback.Client 
 {
     public class PayCallbackServiceClientSettings 
     {

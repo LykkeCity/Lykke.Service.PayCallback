@@ -24,13 +24,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Lykke.Common" Version="4.4.2" />
-    <PackageReference Include="Microsoft.Rest.ClientRuntime" Version="2.3.10" />
+    <Compile Remove="AutorestClient\**" />
+    <EmbeddedResource Remove="AutorestClient\**" />
+    <None Remove="AutorestClient\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="AutorestClient\" />
-    <Folder Include="Models\" />
+    <PackageReference Include="Lykke.Common" Version="4.4.2" />
+    <PackageReference Include="Microsoft.Rest.ClientRuntime" Version="2.3.10" />
+    <PackageReference Include="Refit" Version="4.2.0" />
   </ItemGroup>
 
 </Project>

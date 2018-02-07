@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
+using Lykke.Common.Api.Contract.Responses;
 using Lykke.Service.PayCallback.Core.Services;
 using Lykke.Service.PayCallback.Models;
 using Microsoft.AspNetCore.Mvc;

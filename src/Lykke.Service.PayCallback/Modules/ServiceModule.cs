@@ -1,6 +1,9 @@
 ﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using AzureStorage.Tables;
 using Common.Log;
+using Lykke.Service.PayCallback.AzureRepositories;
+using Lykke.Service.PayCallback.Core.Domain;
 using Lykke.Service.PayCallback.Core.Services;
 using Lykke.Service.PayCallback.Core.Settings.ServiceSettings;
 using Lykke.Service.PayCallback.Services;
@@ -13,7 +16,6 @@ namespace Lykke.Service.PayCallback.Modules
     {
         private readonly IReloadingManager<PayCallbackSettings> _settings;
         private readonly ILog _log;
-        // NOTE: you can remove it if you don't need to use IServiceCollection extensions to register service specific dependencies
         private readonly IServiceCollection _services;
 
         public ServiceModule(IReloadingManager<PayCallbackSettings> settings, ILog log)
@@ -26,12 +28,6 @@ namespace Lykke.Service.PayCallback.Modules
 
         protected override void Load(ContainerBuilder builder)
         {
-            // TODO: Do not register entire settings in container, pass necessary settings to services which requires them
-            // ex:
-            //  builder.RegisterType<QuotesPublisher>()
-            //      .As<IQuotesPublisher>()
-            //      .WithParameter(TypedParameter.From(_settings.CurrentValue.QuotesPublication))
-
             builder.RegisterInstance(_log)
                 .As<ILog>()
                 .SingleInstance();
@@ -46,7 +42,13 @@ namespace Lykke.Service.PayCallback.Modules
             builder.RegisterType<ShutdownManager>()
                 .As<IShutdownManager>();
 
-            // TODO: Add your dependencies here
+            builder.RegisterType<CallbackService>()
+                .As<ICallbackService>()
+                .SingleInstance();
+
+            builder.RegisterInstance<IPaymentCallbackRepository>(new PaymentCallbackRepository(
+                AzureTableStorage<PaymentCallbackEntity>.Create(_settings.ConnectionString(x => x.Db.DataConnString),
+                    "PaymentCallbacks", _log)));
 
             builder.Populate(_services);
         }
