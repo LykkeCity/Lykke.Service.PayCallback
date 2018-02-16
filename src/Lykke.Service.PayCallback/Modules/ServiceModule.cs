@@ -1,12 +1,14 @@
 ﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using AzureStorage.Tables;
+using Common;
 using Common.Log;
 using Lykke.Service.PayCallback.AzureRepositories;
 using Lykke.Service.PayCallback.Core.Domain;
 using Lykke.Service.PayCallback.Core.Services;
 using Lykke.Service.PayCallback.Core.Settings.ServiceSettings;
 using Lykke.Service.PayCallback.Services;
+using Lykke.Service.PayCallback.Subscribers;
 using Lykke.SettingsReader;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -49,6 +51,14 @@ namespace Lykke.Service.PayCallback.Modules
             builder.RegisterInstance<IPaymentCallbackRepository>(new PaymentCallbackRepository(
                 AzureTableStorage<PaymentCallbackEntity>.Create(_settings.ConnectionString(x => x.Db.DataConnString),
                     "PaymentCallbacks", _log)));
+
+            builder.RegisterType<PaymentRequestSubscriber>()
+                .AsSelf()
+                .As<IStartable>()
+                .As<IStopable>()
+                .AutoActivate()
+                .SingleInstance()
+                .WithParameter(TypedParameter.From(_settings.CurrentValue.Rabbit));
 
             builder.Populate(_services);
         }

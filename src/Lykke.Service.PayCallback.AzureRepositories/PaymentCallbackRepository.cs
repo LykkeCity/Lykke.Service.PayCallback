@@ -23,11 +23,11 @@ namespace Lykke.Service.PayCallback.AzureRepositories
             return entity;
         }
 
-        public async Task<IPaymentCallback> GetAsync(IPaymentCallback paymentCallback)
+        public async Task<IPaymentCallback> GetAsync(string merchantId, string paymentRequestId)
         {
             return await _tableStorage.GetDataAsync(
-                PaymentCallbackEntity.ByMerchant.GeneratePartitionKey(paymentCallback.MerchantId),
-                PaymentCallbackEntity.ByMerchant.GenerateRowKey(paymentCallback.PaymentRequestId));
+                PaymentCallbackEntity.ByMerchant.GeneratePartitionKey(merchantId),
+                PaymentCallbackEntity.ByMerchant.GenerateRowKey(paymentRequestId));
         }
     }
 }

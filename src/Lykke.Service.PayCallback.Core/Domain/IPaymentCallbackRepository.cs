@@ -6,6 +6,6 @@ namespace Lykke.Service.PayCallback.Core.Domain
     {
         Task<IPaymentCallback> InsertAsync(IPaymentCallback paymentCallback);
 
-        Task<IPaymentCallback> GetAsync(IPaymentCallback paymentCallback);
+        Task<IPaymentCallback> GetAsync(string merchantId, string paymentRequestId);
     }
 }

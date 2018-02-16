@@ -3,7 +3,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Common;
 using Common.Log;
-using Lykke.Service.PayCallback.Core.Domain;
+using Lykke.Service.PayCallback.Core.Services;
 using Lykke.Service.PayCallback.Filter;
 using Lykke.Service.PayCallback.Models;
 using Microsoft.AspNetCore.Mvc;
