@@ -7,6 +7,6 @@ namespace Lykke.Service.PayCallback.Client.Api
     internal interface ICallbacksApi
     {
         [Post("/api/callback")]
-        Task AddPaymentCallback([Body] CreatePaymentCallbackModel request);
+        Task SetPaymentCallback([Body] SetPaymentCallbackModel request);
     }
 }

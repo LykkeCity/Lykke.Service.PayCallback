@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using AutoMapper;
 using AzureStorage.Tables;
 using Common.Log;
 using Lykke.Common.ApiLibrary.Middleware;
@@ -59,8 +60,19 @@ namespace Lykke.Service.PayCallback
                 Log = CreateLogWithSlack(services, appSettings);
 
                 builder.RegisterModule(new ServiceModule(appSettings.Nested(x => x.PayCallbackService), Log));
+
                 builder.Populate(services);
+
                 ApplicationContainer = builder.Build();
+
+                Mapper.Initialize(cfg =>
+                {
+                    cfg.AddProfiles(typeof(Models.AutoMapperProfile));
+                    cfg.AddProfiles(typeof(AzureRepositories.AutoMapperProfile));
+                    cfg.AddProfiles(typeof(Services.AutoMapperProfile));
+                });
+
+                Mapper.AssertConfigurationIsValid();
 
                 return new AutofacServiceProvider(ApplicationContainer);
             }

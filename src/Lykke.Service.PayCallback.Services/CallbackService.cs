@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using AutoMapper;
 using Common;
 using Lykke.Service.PayCallback.Core.Domain;
 using Lykke.Service.PayCallback.Core.Exceptions;
@@ -19,12 +20,12 @@ namespace Lykke.Service.PayCallback.Services
                                          throw new ArgumentNullException(nameof(paymentCallbackRepository));
         }
 
-        public async Task CreatePaymentCallback(CreatePaymentCallback request)
+        public async Task SetPaymentRequestCallback(SetPaymentRequestCallbackCommand command)
         {
-            await _paymentCallbackRepository.InsertAsync(request);
+            await _paymentCallbackRepository.SetAsync(Mapper.Map<PaymentCallback>(command));
         }
 
-        public async Task ProcessPaymentUpdate(PaymentRequestDetailsMessage model)
+        public async Task ProcessPaymentRequestUpdate(PaymentRequestDetailsMessage model)
         {
             var callback = await _paymentCallbackRepository.GetAsync(model.MerchantId, model.Id);
 

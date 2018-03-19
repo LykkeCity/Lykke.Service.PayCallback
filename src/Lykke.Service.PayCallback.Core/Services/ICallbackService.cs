@@ -6,7 +6,8 @@ namespace Lykke.Service.PayCallback.Core.Services
 {
     public interface ICallbackService
     {
-        Task CreatePaymentCallback(CreatePaymentCallback request);
-        Task ProcessPaymentUpdate(PaymentRequestDetailsMessage model);
+        Task SetPaymentRequestCallback(SetPaymentRequestCallbackCommand command);
+
+        Task ProcessPaymentRequestUpdate(PaymentRequestDetailsMessage model);
     }
 }

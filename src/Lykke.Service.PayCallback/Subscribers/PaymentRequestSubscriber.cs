@@ -62,7 +62,7 @@ namespace Lykke.Service.PayCallback.Subscribers
         {
             try
             {
-                await _callbackService.ProcessPaymentUpdate(message);
+                await _callbackService.ProcessPaymentRequestUpdate(message);
 
                 await _log.WriteInfoAsync(nameof(PaymentRequestSubscriber), nameof(ProcessMessageAsync),
                     message.ToJson(), "Payment request update processed");

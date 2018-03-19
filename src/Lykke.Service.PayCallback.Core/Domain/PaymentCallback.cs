@@ -1,8 +1,8 @@
 ﻿namespace Lykke.Service.PayCallback.Core.Domain
 {
-    public class CreatePaymentCallback : IPaymentCallback
+    public class PaymentCallback : IPaymentCallback
     {
-        public string Id { get; set; }
+        public string Id { get; }
 
         public string MerchantId { get; set; }
 

@@ -2,7 +2,7 @@
 
 namespace Lykke.Service.PayCallback.Models
 {
-    public class CreatePaymentCallbackRequest
+    public class SetPaymentCallbackRequest
     {
         [Required]
         public string MerchantId { get; set; }
