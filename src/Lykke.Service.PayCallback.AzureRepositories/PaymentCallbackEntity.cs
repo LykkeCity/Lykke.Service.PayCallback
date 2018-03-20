@@ -1,9 +1,12 @@
 ﻿using Lykke.AzureStorage.Tables;
+using Lykke.AzureStorage.Tables.Entity.Annotation;
+using Lykke.AzureStorage.Tables.Entity.ValueTypesMerging;
 using Lykke.Service.PayCallback.Core.Domain;
 
 namespace Lykke.Service.PayCallback.AzureRepositories
 {
-    public class PaymentCallbackEntity : AzureTableEntity, IPaymentCallback
+    [ValueTypeMergingStrategy(ValueTypeMergingStrategy.UpdateIfDirty)]
+    public class PaymentCallbackEntity : AzureTableEntity
     {
         public static class ByMerchant
         {

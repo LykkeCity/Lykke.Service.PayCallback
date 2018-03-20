@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Net;
 using System.Threading.Tasks;
+using AutoMapper;
 using Common;
 using Common.Log;
 using Lykke.Service.PayCallback.Core.Domain;
+using Lykke.Service.PayCallback.Core.Services;
 using Lykke.Service.PayCallback.Filter;
 using Lykke.Service.PayCallback.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -12,7 +14,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Lykke.Service.PayCallback.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/callback")]
     public class CallbackController : Controller
     {
         private readonly ILog _log;
@@ -25,28 +27,27 @@ namespace Lykke.Service.PayCallback.Controllers
         }
 
         /// <summary>
-        /// Adds new payment callback
+        /// Adds or updates existing payment request callback url
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("")]
-        [SwaggerOperation("AddPaymentCallback")]
+        [SwaggerOperation("SetPaymentCallback")]
         [ValidateModel]
         [ProducesResponseType(typeof(void), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ModelStateDictionary), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(void), (int) HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> AddPaymentCallback([FromBody] CreatePaymentCallbackRequest request)
+        public async Task<IActionResult> SetPaymentCallback([FromBody] SetPaymentCallbackRequest request)
         {
             try
             {
-                await _callbackService.CreatePaymentCallback(request.ToDomain());
+                await _callbackService.SetPaymentRequestCallback(Mapper.Map<SetPaymentRequestCallbackCommand>(request));
 
                 return Ok();
             }
             catch (Exception ex)
             {
-                await _log.WriteErrorAsync(nameof(CallbackController), nameof(AddPaymentCallback), request.ToJson(), ex);
+                await _log.WriteErrorAsync(nameof(CallbackController), nameof(SetPaymentCallback), request.ToJson(), ex);
             }
 
             return StatusCode((int) HttpStatusCode.InternalServerError);

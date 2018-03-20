@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using AutoMapper;
 using AzureStorage;
 using Lykke.Service.PayCallback.Core.Domain;
 
@@ -14,20 +15,22 @@ namespace Lykke.Service.PayCallback.AzureRepositories
             _tableStorage = tableStorage ?? throw new ArgumentNullException(nameof(tableStorage));
         }
 
-        public async Task<IPaymentCallback> InsertAsync(IPaymentCallback paymentCallback)
+        public async Task<IPaymentCallback> SetAsync(IPaymentCallback paymentCallback)
         {
             var entity = PaymentCallbackEntity.ByMerchant.Create(paymentCallback);
 
-            await _tableStorage.InsertAsync(entity);
+            await _tableStorage.InsertOrMergeAsync(entity);
 
-            return entity;
+            return Mapper.Map<PaymentCallback>(entity);
         }
 
-        public async Task<IPaymentCallback> GetAsync(IPaymentCallback paymentCallback)
+        public async Task<IPaymentCallback> GetAsync(string merchantId, string paymentRequestId)
         {
-            return await _tableStorage.GetDataAsync(
-                PaymentCallbackEntity.ByMerchant.GeneratePartitionKey(paymentCallback.MerchantId),
-                PaymentCallbackEntity.ByMerchant.GenerateRowKey(paymentCallback.PaymentRequestId));
+            PaymentCallbackEntity entity = await _tableStorage.GetDataAsync(
+                PaymentCallbackEntity.ByMerchant.GeneratePartitionKey(merchantId),
+                PaymentCallbackEntity.ByMerchant.GenerateRowKey(paymentRequestId));
+
+            return Mapper.Map<PaymentCallback>(entity);
         }
     }
 }

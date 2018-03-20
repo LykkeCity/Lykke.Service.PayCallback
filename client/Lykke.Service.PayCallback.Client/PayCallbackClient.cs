@@ -43,9 +43,9 @@ namespace Lykke.Service.PayCallback.Client
             _httpClient?.Dispose();
         }
 
-        public async Task AddPaymentCallback(CreatePaymentCallbackModel request)
+        public async Task SetPaymentCallback(SetPaymentCallbackModel request)
         {
-            await _runner.RunAsync(() => _callbackApi.AddPaymentCallback(request));
+            await _runner.RunAsync(() => _callbackApi.SetPaymentCallback(request));
         }
     }
 }
