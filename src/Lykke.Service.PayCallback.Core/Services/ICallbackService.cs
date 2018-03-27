@@ -8,6 +8,8 @@ namespace Lykke.Service.PayCallback.Core.Services
     {
         Task SetPaymentRequestCallback(SetPaymentRequestCallbackCommand command);
 
+        Task<IPaymentCallback> GetPaymentRequestCallback(string merchantId, string paymentRequestId);
+
         Task ProcessPaymentRequestUpdate(PaymentRequestDetailsMessage model);
     }
 }

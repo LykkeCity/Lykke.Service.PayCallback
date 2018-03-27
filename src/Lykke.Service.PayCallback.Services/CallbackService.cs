@@ -25,6 +25,11 @@ namespace Lykke.Service.PayCallback.Services
             await _paymentCallbackRepository.SetAsync(Mapper.Map<PaymentCallback>(command));
         }
 
+        public async Task<IPaymentCallback> GetPaymentRequestCallback(string merchantId, string paymentRequestId)
+        {
+            return await _paymentCallbackRepository.GetAsync(merchantId, paymentRequestId);
+        }
+
         public async Task ProcessPaymentRequestUpdate(PaymentRequestDetailsMessage model)
         {
             var callback = await _paymentCallbackRepository.GetAsync(model.MerchantId, model.Id);

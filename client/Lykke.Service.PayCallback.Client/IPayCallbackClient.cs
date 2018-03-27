@@ -12,5 +12,13 @@ namespace Lykke.Service.PayCallback.Client
         /// <param name="request"></param>
         /// <returns></returns>
         Task SetPaymentCallback(SetPaymentCallbackModel request);
+
+        /// <summary>
+        /// Gets callback info for the payment request
+        /// </summary>
+        /// <param name="merchantId"></param>
+        /// <param name="paymentRequestId"></param>
+        /// <returns></returns>
+        Task<GetPaymentCallbackModel> GetPaymentCallback(string merchantId, string paymentRequestId);
     }
 }
