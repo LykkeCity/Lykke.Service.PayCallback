@@ -47,5 +47,10 @@ namespace Lykke.Service.PayCallback.Client
         {
             await _runner.RunAsync(() => _callbackApi.SetPaymentCallback(request));
         }
+
+        public async Task<GetPaymentCallbackModel> GetPaymentCallback(string merchantId, string paymentRequestId)
+        {
+            return await _runner.RunAsync(() => _callbackApi.GetPaymentCallback(merchantId, paymentRequestId));
+        }
     }
 }

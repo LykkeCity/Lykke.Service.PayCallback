@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Net;
+using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
 using AutoMapper;
 using Common;
 using Common.Log;
+using Lykke.Common.Api.Contract.Responses;
 using Lykke.Service.PayCallback.Core.Domain;
 using Lykke.Service.PayCallback.Core.Services;
 using Lykke.Service.PayCallback.Filter;
 using Lykke.Service.PayCallback.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using RabbitMQ.Client.Apigen.Attributes;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Lykke.Service.PayCallback.Controllers
@@ -51,6 +54,35 @@ namespace Lykke.Service.PayCallback.Controllers
             }
 
             return StatusCode((int) HttpStatusCode.InternalServerError);
+        }
+
+        [HttpGet]
+        [Route("{merchantId}/{paymentRequestId}")]
+        [SwaggerOperation("GetPaymentCallback")]
+        [ProducesResponseType(typeof(PaymentCallbackResponse), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.NotFound)]
+        [ProducesResponseType(typeof(void), (int)HttpStatusCode.InternalServerError)]
+        public async Task<IActionResult> GetPaymentCallback(string merchantId, string paymentRequestId)
+        {
+            try
+            {
+                IPaymentCallback callback = await _callbackService.GetPaymentRequestCallback(merchantId, paymentRequestId);
+
+                if (callback == null)
+                    return NotFound(ErrorResponse.Create("Callback information not found"));
+
+                return Ok(Mapper.Map<PaymentCallbackResponse>(callback));
+            }
+            catch (Exception ex)
+            {
+                await _log.WriteErrorAsync(nameof(CallbackController), nameof(GetPaymentCallback), new
+                {
+                    merchantId,
+                    paymentRequestId
+                }.ToJson(), ex);
+            }
+
+            return StatusCode((int)HttpStatusCode.InternalServerError);
         }
     }
 }

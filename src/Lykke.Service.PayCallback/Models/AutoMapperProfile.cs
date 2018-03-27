@@ -8,6 +8,9 @@ namespace Lykke.Service.PayCallback.Models
         public AutoMapperProfile()
         {
             CreateMap<SetPaymentCallbackRequest, SetPaymentRequestCallbackCommand>(MemberList.Source);
+
+            CreateMap<IPaymentCallback, PaymentCallbackResponse>(MemberList.Destination)
+                .ForSourceMember(src => src.Id, opt => opt.Ignore());
         }
     }
 }
