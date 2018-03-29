@@ -39,7 +39,9 @@ namespace Lykke.Service.PayCallback.Services
 
             using (var httpClient = new HttpClient())
             {
-                await httpClient.PostAsync(callback.Url, new StringContent(model.ToJson()));
+                string content = model.ToStatusApiModel().ToJson();
+
+                await httpClient.PostAsync(callback.Url, new StringContent(content));
             }
         }
     }
