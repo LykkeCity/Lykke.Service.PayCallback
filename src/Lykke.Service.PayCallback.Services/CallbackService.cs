@@ -14,13 +14,11 @@ namespace Lykke.Service.PayCallback.Services
     public class CallbackService : ICallbackService
     {
         private readonly IPaymentCallbackRepository _paymentCallbackRepository;
-        private readonly ILog _log;
 
-        public CallbackService(IPaymentCallbackRepository paymentCallbackRepository, ILog log)
+        public CallbackService(IPaymentCallbackRepository paymentCallbackRepository)
         {
             _paymentCallbackRepository = paymentCallbackRepository ??
                                          throw new ArgumentNullException(nameof(paymentCallbackRepository));
-            _log = log ?? throw new ArgumentNullException(nameof(log));
         }
 
         public async Task SetPaymentRequestCallback(SetPaymentRequestCallbackCommand command)
@@ -38,11 +36,7 @@ namespace Lykke.Service.PayCallback.Services
             var callback = await _paymentCallbackRepository.GetAsync(model.MerchantId, model.Id);
 
             if (callback == null)
-            {
-                await _log.WriteInfoAsync(nameof(CallbackService), "Logging published object", model.ToStatusApiModel().ToJson());
-
                 throw new CallbackNotFoundException(model.Id);
-            }
 
             using (var httpClient = new HttpClient())
             {
