@@ -47,26 +47,32 @@ namespace Lykke.Service.PayCallback.Services
                     break;
                 case PaymentRequestStatus.Error:
 
-                    response.PaymentStatus = PaymentRequestPublicStatuses.PaymentError;
-
                     switch (src.Error)
                     {
                         case PaymentRequestErrorType.PaymentAmountAbove:
+
+                            response.PaymentStatus = PaymentRequestPublicStatuses.PaymentError;
 
                             response.PaymentRequest.Error = PaymentRequestErrorPublicCodes.PaymentAmountAbove;
 
                             break;
                         case PaymentRequestErrorType.PaymentAmountBelow:
 
+                            response.PaymentStatus = PaymentRequestPublicStatuses.PaymentError;
+
                             response.PaymentRequest.Error = PaymentRequestErrorPublicCodes.PaymentAmountBelow;
 
                             break;
                         case PaymentRequestErrorType.PaymentExpired:
 
+                            response.PaymentStatus = PaymentRequestPublicStatuses.PaymentError;
+
                             response.PaymentRequest.Error = PaymentRequestErrorPublicCodes.PaymentExpired;
 
                             break;
                         case PaymentRequestErrorType.RefundNotConfirmed:
+
+                            response.PaymentStatus = PaymentRequestPublicStatuses.RefundError;
 
                             response.RefundRequest = Mapper.Map<RefundRequestModel>(src.Refund);
 
