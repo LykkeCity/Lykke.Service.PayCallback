@@ -3,7 +3,6 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using AutoMapper;
 using Common;
-using Common.Log;
 using Lykke.Service.PayCallback.Core.Domain;
 using Lykke.Service.PayCallback.Core.Exceptions;
 using Lykke.Service.PayCallback.Core.Services;
