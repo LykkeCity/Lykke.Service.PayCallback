@@ -24,8 +24,7 @@ namespace Lykke.Service.PayCallback.Services
 
             CreateMap<PaymentRequestRefund, RefundRequestModel>(MemberList.Destination)
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.Timestamp.ToIsoDateTime()))
-                .ForMember(dest => dest.ExpirationDt, opt => opt.MapFrom(src => src.DueDate.ToIsoDateTime()))
-                .ForMember(dest => dest.Error, opt => opt.Ignore());
+                .ForMember(dest => dest.ExpirationDt, opt => opt.MapFrom(src => src.DueDate.ToIsoDateTime()));
         }
     }
 }

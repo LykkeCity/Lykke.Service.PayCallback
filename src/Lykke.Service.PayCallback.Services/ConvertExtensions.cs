@@ -53,21 +53,21 @@ namespace Lykke.Service.PayCallback.Services
 
                             response.PaymentStatus = PaymentRequestPublicStatuses.PaymentError;
 
-                            response.PaymentRequest.Error = PaymentRequestErrorPublicCodes.PaymentAmountAbove;
+                            response.Error = new ErrorModel {Code = PaymentRequestErrorPublicCodes.PaymentAmountAbove};
 
                             break;
                         case PaymentRequestErrorType.PaymentAmountBelow:
 
                             response.PaymentStatus = PaymentRequestPublicStatuses.PaymentError;
 
-                            response.PaymentRequest.Error = PaymentRequestErrorPublicCodes.PaymentAmountBelow;
+                            response.Error = new ErrorModel {Code = PaymentRequestErrorPublicCodes.PaymentAmountBelow};
 
                             break;
                         case PaymentRequestErrorType.PaymentExpired:
 
                             response.PaymentStatus = PaymentRequestPublicStatuses.PaymentError;
 
-                            response.PaymentRequest.Error = PaymentRequestErrorPublicCodes.PaymentExpired;
+                            response.Error = new ErrorModel {Code = PaymentRequestErrorPublicCodes.PaymentExpired};
 
                             break;
                         case PaymentRequestErrorType.RefundNotConfirmed:
@@ -76,8 +76,8 @@ namespace Lykke.Service.PayCallback.Services
 
                             response.RefundRequest = Mapper.Map<RefundRequestModel>(src.Refund);
 
-                            if (response.RefundRequest != null)
-                                response.RefundRequest.Error = PaymentRequestErrorPublicCodes.TransactionNotConfirmed;
+                            response.Error = new ErrorModel
+                                {Code = PaymentRequestErrorPublicCodes.TransactionNotConfirmed};
 
                             break;
                         default:
