@@ -9,6 +9,9 @@ namespace Lykke.Service.PayCallback.Core.Domain
 
         public string PaymentStatus { get; set; }
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [CanBeNull] public ErrorModel Error { get; set; }
+
         public string OrderId { get; set; }
 
         public string PaymentAsset { get; set; }
