@@ -17,9 +17,6 @@ namespace Lykke.Service.PayCallback.Core.Domain
         public string ExpirationDt { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        [CanBeNull] public string Error { get; set; }
-
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         [CanBeNull] public IList<RefundTransactionModel> Transactions { get; set; }
     }
 }
