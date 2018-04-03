@@ -47,30 +47,30 @@ namespace Lykke.Service.PayCallback.Services
                     break;
                 case PaymentRequestStatus.Error:
 
-                    switch (src.Error)
+                    switch (src.ProcessingError)
                     {
-                        case PaymentRequestErrorType.PaymentAmountAbove:
+                        case PaymentRequestProcessingError.PaymentAmountAbove:
 
                             response.PaymentStatus = PaymentRequestPublicStatuses.PaymentError;
 
                             response.Error = new ErrorModel {Code = PaymentRequestErrorPublicCodes.PaymentAmountAbove};
 
                             break;
-                        case PaymentRequestErrorType.PaymentAmountBelow:
+                        case PaymentRequestProcessingError.PaymentAmountBelow:
 
                             response.PaymentStatus = PaymentRequestPublicStatuses.PaymentError;
 
                             response.Error = new ErrorModel {Code = PaymentRequestErrorPublicCodes.PaymentAmountBelow};
 
                             break;
-                        case PaymentRequestErrorType.PaymentExpired:
+                        case PaymentRequestProcessingError.PaymentExpired:
 
                             response.PaymentStatus = PaymentRequestPublicStatuses.PaymentError;
 
                             response.Error = new ErrorModel {Code = PaymentRequestErrorPublicCodes.PaymentExpired};
 
                             break;
-                        case PaymentRequestErrorType.RefundNotConfirmed:
+                        case PaymentRequestProcessingError.RefundNotConfirmed:
 
                             response.PaymentStatus = PaymentRequestPublicStatuses.RefundError;
 
@@ -78,6 +78,21 @@ namespace Lykke.Service.PayCallback.Services
 
                             response.Error = new ErrorModel
                                 {Code = PaymentRequestErrorPublicCodes.TransactionNotConfirmed};
+
+                            break;
+                        case PaymentRequestProcessingError.UnknownPayment:
+
+                            response.PaymentStatus = PaymentRequestPublicStatuses.PaymentError;
+
+                            break;
+                        case PaymentRequestProcessingError.UnknownRefund:
+
+                            response.PaymentStatus = PaymentRequestPublicStatuses.RefundError;
+
+                            response.RefundRequest = Mapper.Map<RefundRequestModel>(src.Refund);
+
+                            response.Error = new ErrorModel
+                            { Code = PaymentRequestErrorPublicCodes.RefundIsNotAvailable };
 
                             break;
                         default:
