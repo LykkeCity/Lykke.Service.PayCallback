@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
-using Common;
 using Lykke.Service.PayCallback.Core.Domain;
 using Lykke.Service.PayCallback.Core.Exceptions;
 using Lykke.Service.PayCallback.Core.Services;
 using Lykke.Service.PayInternal.Contract.PaymentRequest;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace Lykke.Service.PayCallback.Services
 {
@@ -39,9 +41,13 @@ namespace Lykke.Service.PayCallback.Services
 
             using (var httpClient = new HttpClient())
             {
-                string content = model.ToStatusApiModel().ToJson();
+                string content = JsonConvert.SerializeObject(model.ToStatusApiModel(), new JsonSerializerSettings
+                {
+                    ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                    NullValueHandling = NullValueHandling.Include
+                });
 
-                await httpClient.PostAsync(callback.Url, new StringContent(content));
+                await httpClient.PostAsync(callback.Url, new StringContent(content, Encoding.UTF8, "application/json"));
             }
         }
     }
