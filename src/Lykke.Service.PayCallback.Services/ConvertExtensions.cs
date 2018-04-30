@@ -45,11 +45,6 @@ namespace Lykke.Service.PayCallback.Services
                     response.PaymentStatus = PaymentRequestPublicStatuses.PaymentInProgress;
 
                     break;
-                case PaymentRequestStatus.PastDue:
-
-                    response.PaymentStatus = PaymentRequestPublicStatuses.PaymenPastDue;
-
-                    break;
                 case PaymentRequestStatus.Cancelled:
 
                     response.PaymentStatus = PaymentRequestPublicStatuses.PaymentCancelled;
@@ -78,6 +73,13 @@ namespace Lykke.Service.PayCallback.Services
                             response.PaymentStatus = PaymentRequestPublicStatuses.PaymentError;
 
                             response.Error = new ErrorModel {Code = PaymentRequestErrorPublicCodes.PaymentExpired};
+
+                            break;
+                        case PaymentRequestProcessingError.LatePaid:
+
+                            response.PaymentStatus = PaymentRequestPublicStatuses.PaymentError;
+
+                            response.Error = new ErrorModel {Code = PaymentRequestErrorPublicCodes.LatePaid};
 
                             break;
                         case PaymentRequestProcessingError.RefundNotConfirmed:
