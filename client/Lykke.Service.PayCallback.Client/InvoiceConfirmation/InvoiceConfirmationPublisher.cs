@@ -1,0 +1,170 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Autofac;
+using Common;
+using Common.Log;
+using Lykke.RabbitMqBroker.Publisher;
+using Lykke.RabbitMqBroker.Subscriber;
+
+namespace Lykke.Service.PayCallback.Client.InvoiceConfirmation
+{
+    public class InvoiceConfirmationPublisher : IStartable, IStopable
+    {
+        private readonly RabbitMqPublisherSettings _settings;
+        private readonly ILog _log;
+        private RabbitMqPublisher<IInvoiceConfirmation> _publisher;
+
+        public InvoiceConfirmationPublisher(RabbitMqPublisherSettings settings, ILog log)
+        {
+            _settings = settings;
+            _log = log;
+        }
+
+        public void Start()
+        {
+            var settings = RabbitMqSubscriptionSettings.CreateForPublisher(_settings.ConnectionString, _settings.ExchangeName);
+            settings.MakeDurable();
+
+            _publisher = new RabbitMqPublisher<IInvoiceConfirmation>(settings)
+                .DisableInMemoryQueuePersistence()
+                .SetSerializer(new JsonMessageSerializer<IInvoiceConfirmation>())
+                .SetPublishStrategy(new DefaultFanoutPublishStrategy(settings))
+                .SetConsole(new LogToConsole())
+                .SetLogger(_log)
+                .PublishSynchronously()
+                .Start();
+        }
+
+        public Task PublishAsync(IInvoiceConfirmation invoiceConfirmation)
+        {
+            Validate(invoiceConfirmation);
+
+            return Task.WhenAll(_publisher.ProduceAsync(invoiceConfirmation),
+                _log.WriteInfoAsync(nameof(InvoiceConfirmationPublisher), nameof(PublishAsync),
+                    invoiceConfirmation.ToJson()));
+        }
+
+        protected virtual void Validate(IInvoiceConfirmation invoiceConfirmation)
+        {
+            var context = new ValidationContext(invoiceConfirmation);
+            var results = new List<ValidationResult>();
+
+            var isValid = Validator.TryValidateObject(invoiceConfirmation, context, results, true);
+
+            if (!isValid)
+            {
+                var modelErrors = new Dictionary<string, List<string>>();
+                foreach (ValidationResult validationResult in results)
+                {
+                    if (validationResult.MemberNames != null && validationResult.MemberNames.Any())
+                    {
+                        foreach (string memberName in validationResult.MemberNames)
+                        {
+                            AddModelError(modelErrors, memberName, validationResult.ErrorMessage);
+                        }
+                    }
+                    else
+                    {
+                        AddModelError(modelErrors, string.Empty, validationResult.ErrorMessage);
+                    }
+                }
+
+                throw new InvoiceConfirmationException("Model is invalid.", modelErrors);
+            }
+
+            foreach (var invoiceOperation in invoiceConfirmation.InvoiceList)
+            {
+                Validate(invoiceOperation);
+            }
+        }
+
+        protected virtual void Validate(InvoiceOperation invoiceOperation)
+        {
+            var context = new ValidationContext(invoiceOperation);
+            var results = new List<ValidationResult>();
+
+            var isValid = Validator.TryValidateObject(invoiceOperation, context, results, true);
+
+            if (!isValid)
+            {
+                var modelErrors = new Dictionary<string, List<string>>();
+                foreach (ValidationResult validationResult in results)
+                {
+                    if (validationResult.MemberNames != null && validationResult.MemberNames.Any())
+                    {
+                        foreach (string memberName in validationResult.MemberNames)
+                        {
+                            AddModelError(modelErrors, memberName, validationResult.ErrorMessage);
+                        }
+                    }
+                    else
+                    {
+                        AddModelError(modelErrors, string.Empty, validationResult.ErrorMessage);
+                    }
+                }
+
+                throw new InvoiceConfirmationException("Model is invalid.", modelErrors);
+            }
+
+            if (invoiceOperation.Dispute != null)
+            {
+                Validate(invoiceOperation.Dispute);
+            }
+        }
+
+        protected virtual void Validate(DisputeOperation disputeOperation)
+        {
+            var context = new ValidationContext(disputeOperation);
+            var results = new List<ValidationResult>();
+
+            var isValid = Validator.TryValidateObject(disputeOperation, context, results, true);
+
+            if (!isValid)
+            {
+                var modelErrors = new Dictionary<string, List<string>>();
+                foreach (ValidationResult validationResult in results)
+                {
+                    if (validationResult.MemberNames != null && validationResult.MemberNames.Any())
+                    {
+                        foreach (string memberName in validationResult.MemberNames)
+                        {
+                            AddModelError(modelErrors, memberName, validationResult.ErrorMessage);
+                        }
+                    }
+                    else
+                    {
+                        AddModelError(modelErrors, string.Empty, validationResult.ErrorMessage);
+                    }
+                }
+
+                throw new InvoiceConfirmationException("Model is invalid.", modelErrors);
+            }
+        }
+
+        private void AddModelError(Dictionary<string, List<string>> modelErrors, string memberName,
+            string errorMessage)
+        {
+            if (!modelErrors.TryGetValue(memberName, out var errors))
+            {
+                errors = new List<string>();
+                modelErrors[memberName] = errors;
+            }
+
+            errors.Add(errorMessage);
+        }
+
+        public void Dispose()
+        {
+            _publisher?.Dispose();
+        }
+
+        public void Stop()
+        {
+            _publisher?.Stop();
+        }
+    }
+}

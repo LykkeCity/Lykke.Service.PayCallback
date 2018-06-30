@@ -8,5 +8,7 @@ namespace Lykke.Service.PayCallback.Core.Settings.ServiceSettings
         public string ConnectionString { get; set; }
         
         public string PaymentRequestsExchangeName { get; set; }
+
+        public string InvoiceConfirmationExchangeName { get; set; }
     }
 }
