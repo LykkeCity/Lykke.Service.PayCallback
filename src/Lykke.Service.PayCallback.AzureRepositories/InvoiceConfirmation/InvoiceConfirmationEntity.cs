@@ -18,16 +18,7 @@ namespace Lykke.Service.PayCallback.AzureRepositories.InvoiceConfirmation
         [JsonValueSerializer]
         public InvoiceOperation[] InvoiceList { get; set; }
 
-        private DateTime _settledInBlockchainDateTime;
-        public DateTime SettledInBlockchainDateTime 
-        {
-            get => _settledInBlockchainDateTime;
-            set
-            {
-                _settledInBlockchainDateTime = value;
-                MarkValueTypePropertyAsDirty(nameof(SettledInBlockchainDateTime));
-            }
-        }
+        public DateTime? SettledInBlockchainDateTime { get; set; }
 
         public string BlockchainHash { get; set; }
 
