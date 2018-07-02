@@ -35,17 +35,16 @@ namespace Lykke.Service.PayCallback.Services
                     var xmlDispute = new XElement("Dispute");
                     xmlInvoice.Add(xmlDispute);
 
-                    AddIfNotNull(xmlDispute, "Status", invoiceOperation.Dispute.Status);
+                    AddIfNotNull(xmlDispute, "Status", invoiceOperation.Dispute.Status.ToString());
                     AddIfNotNull(xmlDispute, "Reason", invoiceOperation.Dispute.Reason);
                     AddIfNotNull(xmlDispute, "DateTime", invoiceOperation.Dispute.DateTime.ToString("s"));
                 }
             }
 
-            var xmlSettledInBlockchainDateTime = new XElement("SettledInBlockchainDateTime", invoiceConfirmation.SettledInBlockchainDateTime.ToString("s"));
-            xmlInvoiceConfirmation.Add(xmlSettledInBlockchainDateTime);
-
-            var xmlBlockchainHash = new XElement("BlockchainHash", invoiceConfirmation.BlockchainHash);
-            xmlInvoiceConfirmation.Add(xmlBlockchainHash);
+            AddIfNotNull(xmlInvoiceConfirmation, "SettledInBlockchainDateTime",
+                invoiceConfirmation.SettledInBlockchainDateTime?.ToString("s"));
+            AddIfNotNull(xmlInvoiceConfirmation, "BlockchainHash",
+                invoiceConfirmation.BlockchainHash);
 
             return xmlInvoiceConfirmation.ToString().Replace(" xmlns=\"\"",string.Empty);
         }

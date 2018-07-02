@@ -11,10 +11,8 @@ namespace Lykke.Service.PayCallback.Client.InvoiceConfirmation
         [Required]
         public InvoiceOperation[] InvoiceList { get; set; }
 
-        [Required]
-        public DateTime SettledInBlockchainDateTime { get; set; }
+        public DateTime? SettledInBlockchainDateTime { get; set; }
 
-        [Required]
         public string BlockchainHash { get; set; }
     }
 }
