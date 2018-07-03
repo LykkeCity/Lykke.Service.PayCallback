@@ -4,7 +4,9 @@ using AzureStorage.Tables;
 using Common;
 using Common.Log;
 using Lykke.Service.PayCallback.AzureRepositories;
+using Lykke.Service.PayCallback.AzureRepositories.InvoiceConfirmation;
 using Lykke.Service.PayCallback.Core.Domain;
+using Lykke.Service.PayCallback.Core.Domain.InvoiceConfirmation;
 using Lykke.Service.PayCallback.Core.Services;
 using Lykke.Service.PayCallback.Core.Settings.ServiceSettings;
 using Lykke.Service.PayCallback.Services;
@@ -60,7 +62,33 @@ namespace Lykke.Service.PayCallback.Modules
                 .SingleInstance()
                 .WithParameter(TypedParameter.From(_settings.CurrentValue.Rabbit));
 
+            RegisterInvoiceConfirmation(builder);
+
             builder.Populate(_services);
+        }
+
+        private void RegisterInvoiceConfirmation(ContainerBuilder builder)
+        {
+            builder.RegisterType<InvoiceConfirmationXmlSerializer>()
+                .As<IInvoiceConfirmationXmlSerializer>()
+                .SingleInstance();
+
+            builder.RegisterType<InvoiceConfirmationService>()
+                .As<IInvoiceConfirmationService>()
+                .WithParameter("url", _settings.CurrentValue.InvoiceConfirmationUrl)
+                .SingleInstance();
+
+            builder.RegisterInstance<IInvoiceConfirmationRepository>(new InvoiceConfirmationRepository(
+                AzureTableStorage<InvoiceConfirmationEntity>.Create(_settings.ConnectionString(x => x.Db.DataConnString),
+                    "InvoiceConfirmations", _log)));
+
+            builder.RegisterType<InvoiceConfirmationSubscriber>()
+                .AsSelf()
+                .As<IStartable>()
+                .As<IStopable>()
+                .AutoActivate()
+                .SingleInstance()
+                .WithParameter(TypedParameter.From(_settings.CurrentValue.Rabbit));
         }
     }
 }
