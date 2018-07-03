@@ -10,7 +10,7 @@ namespace Lykke.Service.PayCallback.Client
         public static void RegisterInvoiceConfirmationPublisher(this ContainerBuilder builder,
             RabbitMqPublisherSettings settings, ILog log = null)
         {
-            var registration = builder.RegisterType<InvoiceConfirmation.InvoiceConfirmation>()
+            var registration = builder.RegisterType<InvoiceConfirmationPublisher>()
                 .AsSelf()
                 .As<IStartable>()
                 .As<IStopable>()
