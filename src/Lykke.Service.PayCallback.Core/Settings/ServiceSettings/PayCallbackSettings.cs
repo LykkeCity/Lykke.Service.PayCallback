@@ -7,5 +7,7 @@
         public RabbitSettings Rabbit { get; set; }
 
         public string InvoiceConfirmationUrl { get; set; }
+
+        public string InvoiceConfirmationAuthorization { get; set; }
     }
 }
