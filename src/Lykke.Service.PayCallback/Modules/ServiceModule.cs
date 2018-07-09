@@ -76,6 +76,7 @@ namespace Lykke.Service.PayCallback.Modules
             builder.RegisterType<InvoiceConfirmationService>()
                 .As<IInvoiceConfirmationService>()
                 .WithParameter("url", _settings.CurrentValue.InvoiceConfirmationUrl)
+                .WithParameter("authorization", _settings.CurrentValue.InvoiceConfirmationAuthorization)
                 .SingleInstance();
 
             builder.RegisterInstance<IInvoiceConfirmationRepository>(new InvoiceConfirmationRepository(
