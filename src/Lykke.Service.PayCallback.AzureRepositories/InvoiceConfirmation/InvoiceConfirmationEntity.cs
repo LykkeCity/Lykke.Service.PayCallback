@@ -16,6 +16,9 @@ namespace Lykke.Service.PayCallback.AzureRepositories.InvoiceConfirmation
         public string UserEmail { get; set; }
 
         [JsonValueSerializer]
+        public CashOut CashOut { get; set; }
+
+        [JsonValueSerializer]
         public InvoiceOperation[] InvoiceList { get; set; }
 
         public DateTime? SettledInBlockchainDateTime { get; set; }
@@ -33,6 +36,7 @@ namespace Lykke.Service.PayCallback.AzureRepositories.InvoiceConfirmation
             RowKey = GetRowKey(Guid.NewGuid().ToString());
             
             UserEmail = invoiceConfirmation.UserEmail;
+            CashOut = invoiceConfirmation.CashOut;
             InvoiceList = invoiceConfirmation.InvoiceList;
             SettledInBlockchainDateTime = invoiceConfirmation.SettledInBlockchainDateTime;
             BlockchainHash = invoiceConfirmation.BlockchainHash;

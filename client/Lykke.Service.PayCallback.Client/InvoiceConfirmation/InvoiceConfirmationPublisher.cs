@@ -76,10 +76,15 @@ namespace Lykke.Service.PayCallback.Client.InvoiceConfirmation
                 throw new InvoiceConfirmationException("Model is invalid.", modelErrors);
             }
 
-            foreach (var invoiceOperation in invoiceConfirmation.InvoiceList)
+            if (invoiceConfirmation.InvoiceList != null)
             {
-                Validate(invoiceOperation);
+                foreach (var invoiceOperation in invoiceConfirmation.InvoiceList)
+                {
+                    Validate(invoiceOperation);
+                }
             }
+
+            Validate(invoiceConfirmation.CashOut);
         }
 
         protected virtual void Validate(InvoiceOperation invoiceOperation)
@@ -110,18 +115,54 @@ namespace Lykke.Service.PayCallback.Client.InvoiceConfirmation
                 throw new InvoiceConfirmationException("Model is invalid.", modelErrors);
             }
 
-            if (invoiceOperation.Dispute != null)
-            {
-                Validate(invoiceOperation.Dispute);
-            }
+            Validate(invoiceOperation.Dispute);
         }
 
         protected virtual void Validate(DisputeOperation disputeOperation)
         {
+            if (disputeOperation == null)
+            {
+                return;
+            }
+
             var context = new ValidationContext(disputeOperation);
             var results = new List<ValidationResult>();
 
             var isValid = Validator.TryValidateObject(disputeOperation, context, results, true);
+
+            if (!isValid)
+            {
+                var modelErrors = new Dictionary<string, List<string>>();
+                foreach (ValidationResult validationResult in results)
+                {
+                    if (validationResult.MemberNames != null && validationResult.MemberNames.Any())
+                    {
+                        foreach (string memberName in validationResult.MemberNames)
+                        {
+                            AddModelError(modelErrors, memberName, validationResult.ErrorMessage);
+                        }
+                    }
+                    else
+                    {
+                        AddModelError(modelErrors, string.Empty, validationResult.ErrorMessage);
+                    }
+                }
+
+                throw new InvoiceConfirmationException("Model is invalid.", modelErrors);
+            }
+        }
+
+        protected virtual void Validate(CashOut cashOut)
+        {
+            if (cashOut == null)
+            {
+                return;
+            }
+
+            var context = new ValidationContext(cashOut);
+            var results = new List<ValidationResult>();
+
+            var isValid = Validator.TryValidateObject(cashOut, context, results, true);
 
             if (!isValid)
             {

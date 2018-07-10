@@ -2,6 +2,7 @@
 using Common.Log;
 using Lykke.Service.PayCallback.Core.Domain.InvoiceConfirmation;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using Lykke.Service.PayCallback.Core.Services;
@@ -18,19 +19,22 @@ namespace Lykke.Service.PayCallback.Services
 
         public InvoiceConfirmationService(IInvoiceConfirmationRepository repository,
             IInvoiceConfirmationXmlSerializer xmlSerializer,
-            ILog log, string url)
+            ILog log, string url, string authorization)
         {
             _repository = repository;
             _xmlSerializer = xmlSerializer;
             _url = url;
+            HttpClient.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Basic", authorization);
             _log = log;
         }
 
         public async Task ProcessAsync(InvoiceConfirmation invoiceConfirmation)
         {
             string data = _xmlSerializer.Serialize(invoiceConfirmation);
-            var response = await HttpClient.PostAsync(_url, new StringContent(data, 
-                Encoding.UTF8, "application/xml"));
+
+            var content = new StringContent(data, Encoding.UTF8, "text/xml");
+            var response = await HttpClient.PostAsync(_url, content);
 
             if (!response.IsSuccessStatusCode)
             {

@@ -1,4 +1,5 @@
-﻿using Lykke.Service.PayCallback.Core.Domain.InvoiceConfirmation;
+﻿using System.Linq;
+using Lykke.Service.PayCallback.Core.Domain.InvoiceConfirmation;
 using Lykke.Service.PayCallback.Core.Services;
 using System.Xml.Linq;
 
@@ -13,13 +14,29 @@ namespace Lykke.Service.PayCallback.Services
             var xmlInvoiceConfirmation = new XElement(ns + "InvoiceConfirmation",
                 new XAttribute(XNamespace.Xmlns + "i", nsi));
 
-            var xmlUserEmail = new XElement("UserEmail", invoiceConfirmation.UserEmail);
-            xmlInvoiceConfirmation.Add(xmlUserEmail);
+            CreateIfNotNull(xmlInvoiceConfirmation, "UserEmail",
+                invoiceConfirmation.UserEmail);
+
+            AddIfNotNull(xmlInvoiceConfirmation, CreateInvoiceList(invoiceConfirmation.InvoiceList));
+            AddIfNotNull(xmlInvoiceConfirmation, CreateCashOut(invoiceConfirmation.CashOut));
+
+            CreateIfNotNull(xmlInvoiceConfirmation, "SettledInBlockchainDateTime",
+                invoiceConfirmation.SettledInBlockchainDateTime?.ToString("s"));
+            CreateIfNotNull(xmlInvoiceConfirmation, "BlockchainHash",
+                invoiceConfirmation.BlockchainHash);
+
+            return xmlInvoiceConfirmation.ToString().Replace(" xmlns=\"\"",string.Empty);
+        }
+
+        private XElement CreateInvoiceList(InvoiceOperation[] invoiceList)
+        {
+            if (invoiceList == null || !invoiceList.Any())
+            {
+                return null;
+            }
 
             var xmlInvoiceList = new XElement("InvoiceList");
-            xmlInvoiceConfirmation.Add(xmlInvoiceList);
-
-            foreach (var invoiceOperation in invoiceConfirmation.InvoiceList)
+            foreach (var invoiceOperation in invoiceList)
             {
                 var xmlInvoice = new XElement("Invoice");
                 xmlInvoiceList.Add(xmlInvoice);
@@ -27,29 +44,42 @@ namespace Lykke.Service.PayCallback.Services
                 var xmlInvoiceNumber = new XElement("InvoiceNumber", invoiceOperation.InvoiceNumber);
                 xmlInvoice.Add(xmlInvoiceNumber);
 
-                AddIfNotNull(xmlInvoice, "AmountPaid", invoiceOperation.AmountPaid);
-                AddIfNotNull(xmlInvoice, "AmountLeftPaid", invoiceOperation.AmountLeftPaid);
+                CreateIfNotNull(xmlInvoice, "AmountPaid", invoiceOperation.AmountPaid);
+                CreateIfNotNull(xmlInvoice, "AmountLeftPaid", invoiceOperation.AmountLeftPaid);
 
                 if (invoiceOperation.Dispute != null)
                 {
                     var xmlDispute = new XElement("Dispute");
                     xmlInvoice.Add(xmlDispute);
 
-                    AddIfNotNull(xmlDispute, "Status", invoiceOperation.Dispute.Status.ToString());
-                    AddIfNotNull(xmlDispute, "Reason", invoiceOperation.Dispute.Reason);
-                    AddIfNotNull(xmlDispute, "DateTime", invoiceOperation.Dispute.DateTime.ToString("s"));
+                    CreateIfNotNull(xmlDispute, "Status", invoiceOperation.Dispute.Status.ToString());
+                    CreateIfNotNull(xmlDispute, "Reason", invoiceOperation.Dispute.Reason);
+                    CreateIfNotNull(xmlDispute, "DateTime", invoiceOperation.Dispute.DateTime.ToString("s"));
                 }
             }
 
-            AddIfNotNull(xmlInvoiceConfirmation, "SettledInBlockchainDateTime",
-                invoiceConfirmation.SettledInBlockchainDateTime?.ToString("s"));
-            AddIfNotNull(xmlInvoiceConfirmation, "BlockchainHash",
-                invoiceConfirmation.BlockchainHash);
-
-            return xmlInvoiceConfirmation.ToString().Replace(" xmlns=\"\"",string.Empty);
+            return xmlInvoiceList;
         }
 
-        private XElement AddIfNotNull(XElement root, string name, object value)
+        private XElement CreateCashOut(CashOut cashOut)
+        {
+            if (cashOut == null)
+            {
+                return null;
+            }
+
+            var xmlCashOut = new XElement("CashOut");
+
+            var xmlAmount = new XElement("Amount", cashOut.Amount);
+            xmlCashOut.Add(xmlAmount);
+
+            var xmlCurrency = new XElement("Currency", cashOut.Currency);
+            xmlCashOut.Add(xmlCurrency);
+
+            return xmlCashOut;
+        }
+
+        private XElement CreateIfNotNull(XElement root, string name, object value)
         {
             if (value == null)
             {
@@ -57,9 +87,17 @@ namespace Lykke.Service.PayCallback.Services
             }
 
             var element = new XElement(name, value);
-            root.Add(element);
+            return AddIfNotNull(root, element);
+        }
 
-            return element;
+        private XElement AddIfNotNull(XElement root, XElement child)
+        {
+            if (child != null)
+            {
+                root.Add(child);
+            }
+            
+            return child;
         }
     }
 }
