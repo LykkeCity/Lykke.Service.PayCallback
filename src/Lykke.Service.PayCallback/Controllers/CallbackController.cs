@@ -6,6 +6,7 @@ using AutoMapper;
 using Common;
 using Common.Log;
 using Lykke.Common.Api.Contract.Responses;
+using Lykke.Common.Log;
 using Lykke.Service.PayCallback.Core.Domain;
 using Lykke.Service.PayCallback.Core.Services;
 using Lykke.Service.PayCallback.Filter;
@@ -23,10 +24,16 @@ namespace Lykke.Service.PayCallback.Controllers
         private readonly ILog _log;
         private readonly ICallbackService _callbackService;
 
-        public CallbackController(ICallbackService callbackService, ILog log)
+        public CallbackController(ICallbackService callbackService, ILogFactory logFactory)
         {
             _callbackService = callbackService ?? throw new ArgumentNullException(nameof(callbackService));
-            _log = log ?? throw new ArgumentNullException(nameof(log));
+
+            if (logFactory == null)
+            {
+                throw new ArgumentNullException(nameof(logFactory));
+            }
+
+            _log = logFactory.CreateLog(this);
         }
 
         /// <summary>
@@ -50,7 +57,7 @@ namespace Lykke.Service.PayCallback.Controllers
             }
             catch (Exception ex)
             {
-                await _log.WriteErrorAsync(nameof(CallbackController), nameof(SetPaymentCallback), request.ToJson(), ex);
+                _log.Error(ex, null, request.ToJson());
             }
 
             return StatusCode((int) HttpStatusCode.InternalServerError);
@@ -75,11 +82,11 @@ namespace Lykke.Service.PayCallback.Controllers
             }
             catch (Exception ex)
             {
-                await _log.WriteErrorAsync(nameof(CallbackController), nameof(GetPaymentCallback), new
+                _log.Error(ex, null, new
                 {
                     merchantId,
                     paymentRequestId
-                }.ToJson(), ex);
+                }.ToJson());
             }
 
             return StatusCode((int)HttpStatusCode.InternalServerError);
