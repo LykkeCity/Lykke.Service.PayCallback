@@ -2,7 +2,7 @@
 using Autofac.Extensions.DependencyInjection;
 using AzureStorage.Tables;
 using Common;
-using Common.Log;
+using Lykke.Common.Log;
 using Lykke.Service.PayCallback.AzureRepositories;
 using Lykke.Service.PayCallback.AzureRepositories.InvoiceConfirmation;
 using Lykke.Service.PayCallback.Core.Domain;
@@ -19,23 +19,16 @@ namespace Lykke.Service.PayCallback.Modules
     public class ServiceModule : Module
     {
         private readonly IReloadingManager<PayCallbackSettings> _settings;
-        private readonly ILog _log;
         private readonly IServiceCollection _services;
 
-        public ServiceModule(IReloadingManager<PayCallbackSettings> settings, ILog log)
+        public ServiceModule(IReloadingManager<PayCallbackSettings> settings)
         {
             _settings = settings;
-            _log = log;
-
             _services = new ServiceCollection();
         }
 
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterInstance(_log)
-                .As<ILog>()
-                .SingleInstance();
-
             builder.RegisterType<HealthService>()
                 .As<IHealthService>()
                 .SingleInstance();
@@ -50,9 +43,12 @@ namespace Lykke.Service.PayCallback.Modules
                 .As<ICallbackService>()
                 .SingleInstance();
 
-            builder.RegisterInstance<IPaymentCallbackRepository>(new PaymentCallbackRepository(
-                AzureTableStorage<PaymentCallbackEntity>.Create(_settings.ConnectionString(x => x.Db.DataConnString),
-                    "PaymentCallbacks", _log)));
+            builder.Register(c => new PaymentCallbackRepository(
+                    AzureTableStorage<PaymentCallbackEntity>.Create(
+                        _settings.ConnectionString(x => x.Db.DataConnString),
+                        "PaymentCallbacks", c.Resolve<ILogFactory>())))
+                .As<IPaymentCallbackRepository>()
+                .SingleInstance();
 
             builder.RegisterType<PaymentRequestSubscriber>()
                 .AsSelf()
@@ -79,9 +75,12 @@ namespace Lykke.Service.PayCallback.Modules
                 .WithParameter("authorization", _settings.CurrentValue.InvoiceConfirmationAuthorization)
                 .SingleInstance();
 
-            builder.RegisterInstance<IInvoiceConfirmationRepository>(new InvoiceConfirmationRepository(
-                AzureTableStorage<InvoiceConfirmationEntity>.Create(_settings.ConnectionString(x => x.Db.DataConnString),
-                    "InvoiceConfirmations", _log)));
+            builder.Register(c => new InvoiceConfirmationRepository(
+                    AzureTableStorage<InvoiceConfirmationEntity>.Create(
+                        _settings.ConnectionString(x => x.Db.DataConnString),
+                        "InvoiceConfirmations", c.Resolve<ILogFactory>())))
+                .As<IInvoiceConfirmationRepository>()
+                .SingleInstance();
 
             builder.RegisterType<InvoiceConfirmationSubscriber>()
                 .AsSelf()

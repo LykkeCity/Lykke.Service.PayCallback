@@ -8,6 +8,7 @@ using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using Lykke.Common.Log;
 using Lykke.Service.PayCallback.Core.Services;
 
 namespace Lykke.Service.PayCallback.Services
@@ -29,21 +30,21 @@ namespace Lykke.Service.PayCallback.Services
 
         public InvoiceConfirmationService(IInvoiceConfirmationRepository repository,
             IInvoiceConfirmationXmlSerializer xmlSerializer,
-            ILog log, string url, string authorization)
+            ILogFactory logFactory, string url, string authorization)
         {
             _repository = repository;
             _xmlSerializer = xmlSerializer;
             _url = url;
             HttpClient.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Basic", authorization);
-            _log = log;
+            _log = logFactory.CreateLog(this);
         }
 
         public async Task ProcessAsync(InvoiceConfirmation invoiceConfirmation)
         {
             string data = _xmlSerializer.Serialize(invoiceConfirmation);
 
-            _log.WriteInfo(nameof(ProcessAsync), new { data }, "Sending data starting");
+            _log.Info("Sending data starting", new { data });
 
             HttpResponseMessage response;
             try
@@ -53,10 +54,10 @@ namespace Lykke.Service.PayCallback.Services
             }
             catch (Exception ex)
             {
-                await _log.WriteErrorAsync(nameof(InvoiceConfirmationService), nameof(ProcessAsync), new
+                _log.Error(ex, null,new
                 {
                     InvoiceConfirmation = data
-                }.ToJson(), ex);
+                }.ToJson());
 
                 throw;
             }            
@@ -70,17 +71,17 @@ namespace Lykke.Service.PayCallback.Services
                     Content = responseContent
                 };
 
-                await _log.WriteErrorAsync(nameof(InvoiceConfirmationService), nameof(ProcessAsync), new
+                _log.Error(exception, null, new
                 {
                     StatusCode = response.StatusCode,
                     Content = responseContent,
                     InvoiceConfirmation = data
-                }.ToJson(), exception);
+                }.ToJson());
 
                 throw exception;
             }
 
-            _log.WriteInfo(nameof(ProcessAsync), new { data }, "Data successfully sent");
+            _log.Info("Data successfully sent", new { data });
 
             await _repository.AddAsync(invoiceConfirmation);
         }
