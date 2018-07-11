@@ -18,33 +18,13 @@ namespace Lykke.Service.PayCallback.Services
         private readonly IInvoiceConfirmationXmlSerializer _xmlSerializer;
         private readonly string _url;
         private readonly ILog _log;
-        private readonly HttpClient HttpClient;
+        private static readonly HttpClient HttpClient;
 
-        private bool ServerCertificateCustomValidationCallback(
-            HttpRequestMessage httpRequestMessage,
-            X509Certificate2 x509Certificate2, X509Chain arg3, SslPolicyErrors arg4)
+        static InvoiceConfirmationService()
         {
-            _log.WriteInfo(nameof(ServerCertificateCustomValidationCallback),
-                ExportToPEM(x509Certificate2),
-                "Certificate.");
-
-            return true;
-        }
-
-        /// <summary>
-        /// Export a certificate to a PEM format string
-        /// </summary>
-        /// <param name="cert">The certificate to export</param>
-        /// <returns>A PEM encoded string</returns>
-        public static string ExportToPEM(X509Certificate cert)
-        {
-            StringBuilder builder = new StringBuilder();
-
-            builder.AppendLine("-----BEGIN CERTIFICATE-----");
-            builder.AppendLine(Convert.ToBase64String(cert.Export(X509ContentType.Cert), Base64FormattingOptions.InsertLineBreaks));
-            builder.AppendLine("-----END CERTIFICATE-----");
-
-            return builder.ToString();
+            var handler = new HttpClientHandler();
+            handler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+            HttpClient = new HttpClient(handler);
         }
 
         public InvoiceConfirmationService(IInvoiceConfirmationRepository repository,
@@ -54,11 +34,6 @@ namespace Lykke.Service.PayCallback.Services
             _repository = repository;
             _xmlSerializer = xmlSerializer;
             _url = url;
-
-            var handler = new HttpClientHandler();
-            handler.ServerCertificateCustomValidationCallback += ServerCertificateCustomValidationCallback;
-            HttpClient = new HttpClient(handler);
-
             HttpClient.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Basic", authorization);
             _log = log;
