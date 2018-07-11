@@ -4,6 +4,8 @@ using Common.Log;
 using Lykke.Service.PayCallback.Core.Domain.InvoiceConfirmation;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using Lykke.Service.PayCallback.Core.Services;
@@ -16,7 +18,14 @@ namespace Lykke.Service.PayCallback.Services
         private readonly IInvoiceConfirmationXmlSerializer _xmlSerializer;
         private readonly string _url;
         private readonly ILog _log;
-        private static readonly HttpClient HttpClient = new HttpClient();
+        private static readonly HttpClient HttpClient;
+
+        static InvoiceConfirmationService()
+        {
+            var handler = new HttpClientHandler();
+            handler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+            HttpClient = new HttpClient(handler);
+        }
 
         public InvoiceConfirmationService(IInvoiceConfirmationRepository repository,
             IInvoiceConfirmationXmlSerializer xmlSerializer,
