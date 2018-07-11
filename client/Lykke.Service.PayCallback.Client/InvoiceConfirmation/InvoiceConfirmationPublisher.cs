@@ -66,7 +66,7 @@ namespace Lykke.Service.PayCallback.Client.InvoiceConfirmation
 
             await _publisher.ProduceAsync(invoiceConfirmation);
 
-            _log.Info("Invoice confirmation is published.", invoiceConfirmation.ToJson());
+            _log.Info("Invoice confirmation is published.", invoiceConfirmation);
         }
 
         protected virtual void Validate(IInvoiceConfirmation invoiceConfirmation)
