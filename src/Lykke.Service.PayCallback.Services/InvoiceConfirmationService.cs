@@ -33,6 +33,8 @@ namespace Lykke.Service.PayCallback.Services
         {
             string data = _xmlSerializer.Serialize(invoiceConfirmation);
 
+            _log.WriteInfo(nameof(ProcessAsync), new { data }, "Sending data starting");
+
             var content = new StringContent(data, Encoding.UTF8, "text/xml");
             var response = await HttpClient.PostAsync(_url, content);
 
@@ -54,6 +56,8 @@ namespace Lykke.Service.PayCallback.Services
 
                 throw exception;
             }
+
+            _log.WriteInfo(nameof(ProcessAsync), new { data }, "Data successfully sent");
 
             await _repository.AddAsync(invoiceConfirmation);
         }
