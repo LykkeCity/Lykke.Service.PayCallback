@@ -1,27 +1,38 @@
-﻿using System;
+﻿using Autofac;
+using Common;
+using Common.Log;
+using Lykke.Common.Log;
+using Lykke.RabbitMqBroker.Publisher;
+using Lykke.RabbitMqBroker.Subscriber;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Autofac;
-using Common;
-using Common.Log;
-using Lykke.RabbitMqBroker.Publisher;
-using Lykke.RabbitMqBroker.Subscriber;
 
 namespace Lykke.Service.PayCallback.Client.InvoiceConfirmation
 {
     public class InvoiceConfirmationPublisher : IStartable, IStopable
     {
         private readonly RabbitMqPublisherSettings _settings;
+        private readonly ILogFactory _logFactory;
         private readonly ILog _log;
         private RabbitMqPublisher<IInvoiceConfirmation> _publisher;
 
+        [Obsolete]
         public InvoiceConfirmationPublisher(RabbitMqPublisherSettings settings, ILog log)
         {
             _settings = settings;
             _log = log;
+        }
+
+        public InvoiceConfirmationPublisher(RabbitMqPublisherSettings settings, 
+            ILogFactory logFactory)
+        {
+            _settings = settings;
+            _logFactory = logFactory;
+            _log = logFactory.CreateLog(this);
+
         }
 
         public void Start()
@@ -29,23 +40,33 @@ namespace Lykke.Service.PayCallback.Client.InvoiceConfirmation
             var settings = RabbitMqSubscriptionSettings.CreateForPublisher(_settings.ConnectionString, _settings.ExchangeName);
             settings.MakeDurable();
 
-            _publisher = new RabbitMqPublisher<IInvoiceConfirmation>(settings)
-                .DisableInMemoryQueuePersistence()
+            if (_logFactory == null)
+            {
+                _publisher = new RabbitMqPublisher<IInvoiceConfirmation>(settings)
+                    .SetConsole(new LogToConsole())
+                    .SetLogger(_log);
+            }
+            else
+            {
+                _publisher = new RabbitMqPublisher<IInvoiceConfirmation>(_logFactory, settings);
+            }
+
+            _publisher.DisableInMemoryQueuePersistence()
+                .PublishSynchronously()
                 .SetSerializer(new JsonMessageSerializer<IInvoiceConfirmation>())
                 .SetPublishStrategy(new DefaultFanoutPublishStrategy(settings))
-                .SetConsole(new LogToConsole())
-                .SetLogger(_log)
-                .PublishSynchronously()
                 .Start();
+
+            _log.Info($"<< {nameof(InvoiceConfirmationPublisher)} is started.");
         }
 
-        public Task PublishAsync(IInvoiceConfirmation invoiceConfirmation)
+        public async Task PublishAsync(IInvoiceConfirmation invoiceConfirmation)
         {
             Validate(invoiceConfirmation);
 
-            return Task.WhenAll(_publisher.ProduceAsync(invoiceConfirmation),
-                _log.WriteInfoAsync(nameof(InvoiceConfirmationPublisher), nameof(PublishAsync),
-                    invoiceConfirmation.ToJson()));
+            await _publisher.ProduceAsync(invoiceConfirmation);
+
+            _log.Info("Invoice confirmation is published.", invoiceConfirmation);
         }
 
         protected virtual void Validate(IInvoiceConfirmation invoiceConfirmation)
@@ -206,6 +227,7 @@ namespace Lykke.Service.PayCallback.Client.InvoiceConfirmation
         public void Stop()
         {
             _publisher?.Stop();
+            _log.Info($"<< {nameof(InvoiceConfirmationPublisher)} is stopped.");
         }
     }
 }

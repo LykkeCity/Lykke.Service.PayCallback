@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Common.Log;
+using Lykke.Common.Log;
 using Lykke.Service.PayCallback.Core.Services;
 
 namespace Lykke.Service.PayCallback.Services
@@ -15,9 +16,9 @@ namespace Lykke.Service.PayCallback.Services
     {
         private readonly ILog _log;
 
-        public StartupManager(ILog log)
+        public StartupManager(ILogFactory logFactory)
         {
-            _log = log;
+            _log = logFactory.CreateLog(this);
         }
 
         public async Task StartAsync()

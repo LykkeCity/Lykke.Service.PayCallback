@@ -1,10 +1,14 @@
-﻿using Common;
+﻿using System;
+using Common;
 using Common.Log;
 using Lykke.Service.PayCallback.Core.Domain.InvoiceConfirmation;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using Lykke.Common.Log;
 using Lykke.Service.PayCallback.Core.Services;
 
 namespace Lykke.Service.PayCallback.Services
@@ -15,26 +19,48 @@ namespace Lykke.Service.PayCallback.Services
         private readonly IInvoiceConfirmationXmlSerializer _xmlSerializer;
         private readonly string _url;
         private readonly ILog _log;
-        private static readonly HttpClient HttpClient = new HttpClient();
+        private static readonly HttpClient HttpClient;
+
+        static InvoiceConfirmationService()
+        {
+            var handler = new HttpClientHandler();
+            handler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+            HttpClient = new HttpClient(handler);
+        }
 
         public InvoiceConfirmationService(IInvoiceConfirmationRepository repository,
             IInvoiceConfirmationXmlSerializer xmlSerializer,
-            ILog log, string url, string authorization)
+            ILogFactory logFactory, string url, string authorization)
         {
             _repository = repository;
             _xmlSerializer = xmlSerializer;
             _url = url;
             HttpClient.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Basic", authorization);
-            _log = log;
+            _log = logFactory.CreateLog(this);
         }
 
         public async Task ProcessAsync(InvoiceConfirmation invoiceConfirmation)
         {
             string data = _xmlSerializer.Serialize(invoiceConfirmation);
 
-            var content = new StringContent(data, Encoding.UTF8, "text/xml");
-            var response = await HttpClient.PostAsync(_url, content);
+            _log.Info("Sending data starting", new { data });
+
+            HttpResponseMessage response;
+            try
+            {
+                var content = new StringContent(data, Encoding.UTF8, "text/xml");
+                response = await HttpClient.PostAsync(_url, content);
+            }
+            catch (Exception ex)
+            {
+                _log.Error(ex, null,new
+                {
+                    InvoiceConfirmation = data
+                }.ToJson());
+
+                throw;
+            }            
 
             if (!response.IsSuccessStatusCode)
             {
@@ -45,15 +71,17 @@ namespace Lykke.Service.PayCallback.Services
                     Content = responseContent
                 };
 
-                await _log.WriteErrorAsync(nameof(InvoiceConfirmationService), nameof(ProcessAsync), new
+                _log.Error(exception, null, new
                 {
                     StatusCode = response.StatusCode,
                     Content = responseContent,
                     InvoiceConfirmation = data
-                }.ToJson(), exception);
+                }.ToJson());
 
                 throw exception;
             }
+
+            _log.Info("Data successfully sent", new { data });
 
             await _repository.AddAsync(invoiceConfirmation);
         }
