@@ -1,4 +1,5 @@
-﻿using Common;
+﻿using System;
+using Common;
 using Common.Log;
 using Lykke.Service.PayCallback.Core.Domain.InvoiceConfirmation;
 using System.Net.Http;
@@ -35,8 +36,21 @@ namespace Lykke.Service.PayCallback.Services
 
             _log.WriteInfo(nameof(ProcessAsync), new { data }, "Sending data starting");
 
-            var content = new StringContent(data, Encoding.UTF8, "text/xml");
-            var response = await HttpClient.PostAsync(_url, content);
+            HttpResponseMessage response;
+            try
+            {
+                var content = new StringContent(data, Encoding.UTF8, "text/xml");
+                response = await HttpClient.PostAsync(_url, content);
+            }
+            catch (Exception ex)
+            {
+                await _log.WriteErrorAsync(nameof(InvoiceConfirmationService), nameof(ProcessAsync), new
+                {
+                    InvoiceConfirmation = data
+                }.ToJson(), ex);
+
+                throw;
+            }            
 
             if (!response.IsSuccessStatusCode)
             {
