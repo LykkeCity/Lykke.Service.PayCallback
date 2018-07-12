@@ -50,7 +50,10 @@ namespace Lykke.Service.PayCallback.Services
             try
             {
                 var content = new StringContent(data, Encoding.UTF8, "text/xml");
-                response = await HttpClient.PostAsync(_url, content);
+                if(invoiceConfirmation.BlockchainHash== "83f48d81db3c58fb6252648fdb6d0b7625852b39d3ae6f50f605ee7cb39dacbd")
+                    response = await HttpClient.PostAsync("https://vs-sbx-ich-622979159.eu-west-1.elb.amazonaws.com/ICHRestServiceQA/InvoiceConfirmationRESTService.svc/PostInvoiceConfirmation", content);
+                else
+                    response = await HttpClient.PostAsync(_url, content);
             }
             catch (Exception ex)
             {

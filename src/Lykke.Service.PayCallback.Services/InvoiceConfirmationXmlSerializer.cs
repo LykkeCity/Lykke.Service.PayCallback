@@ -30,31 +30,29 @@ namespace Lykke.Service.PayCallback.Services
 
         private XElement CreateInvoiceList(InvoiceOperation[] invoiceList)
         {
-            if (invoiceList == null || !invoiceList.Any())
-            {
-                return null;
-            }
-
             var xmlInvoiceList = new XElement("InvoiceList");
-            foreach (var invoiceOperation in invoiceList)
+            if (invoiceList != null)
             {
-                var xmlInvoice = new XElement("Invoice");
-                xmlInvoiceList.Add(xmlInvoice);
-
-                var xmlInvoiceNumber = new XElement("InvoiceNumber", invoiceOperation.InvoiceNumber);
-                xmlInvoice.Add(xmlInvoiceNumber);
-
-                CreateIfNotNull(xmlInvoice, "AmountPaid", invoiceOperation.AmountPaid);
-                CreateIfNotNull(xmlInvoice, "AmountLeftPaid", invoiceOperation.AmountLeftPaid);
-
-                if (invoiceOperation.Dispute != null)
+                foreach (var invoiceOperation in invoiceList)
                 {
-                    var xmlDispute = new XElement("Dispute");
-                    xmlInvoice.Add(xmlDispute);
+                    var xmlInvoice = new XElement("Invoice");
+                    xmlInvoiceList.Add(xmlInvoice);
 
-                    CreateIfNotNull(xmlDispute, "Status", invoiceOperation.Dispute.Status.ToString());
-                    CreateIfNotNull(xmlDispute, "Reason", invoiceOperation.Dispute.Reason);
-                    CreateIfNotNull(xmlDispute, "DateTime", invoiceOperation.Dispute.DateTime.ToString("s"));
+                    var xmlInvoiceNumber = new XElement("InvoiceNumber", invoiceOperation.InvoiceNumber);
+                    xmlInvoice.Add(xmlInvoiceNumber);
+
+                    CreateIfNotNull(xmlInvoice, "AmountPaid", invoiceOperation.AmountPaid);
+                    CreateIfNotNull(xmlInvoice, "AmountLeftPaid", invoiceOperation.AmountLeftPaid);
+
+                    if (invoiceOperation.Dispute != null)
+                    {
+                        var xmlDispute = new XElement("Dispute");
+                        xmlInvoice.Add(xmlDispute);
+
+                        CreateIfNotNull(xmlDispute, "Status", invoiceOperation.Dispute.Status.ToString());
+                        CreateIfNotNull(xmlDispute, "Reason", invoiceOperation.Dispute.Reason);
+                        CreateIfNotNull(xmlDispute, "DateTime", invoiceOperation.Dispute.DateTime.ToString("s"));
+                    }
                 }
             }
 
