@@ -1,0 +1,25 @@
+{
+	"PayCallbackService": {
+		"Db": {
+			"LogsConnString": "${LogsConnString}:[AzureTableStorage]",
+			"DataConnString": "${PersonalInfoConnString}:[AzureTableStorage]"
+		},
+		"Rabbit": {
+			"ConnectionString": "${GeneralRabbitMqConnectionString}:[RabbitMq]",
+			"PaymentRequestsExchangeName": "pay.paymentrequests",
+			"InvoiceConfirmationExchangeName": "pay.invoiceconfirmation"
+		},
+		"InvoiceConfirmationUrl": "http://pay-sign.lykke-service.svc.cluster.local/api/CallbackStub",
+		"InvoiceConfirmationAuthorization": "dGVzdHVzZXI6dGVzdHBhc3N3b3Jk"
+	},
+	"SlackNotifications": {
+		"AzureQueue": {
+			"ConnectionString": "${SlackNotificationsConnString}:[AzureTableStorage]",
+			"QueueName": "slack-notifications"
+		},
+		"ThrottlingLimitSeconds": ${SlackNotificationsThrottlingLimit}
+	},
+	"MonitoringServiceClient": {
+		"MonitoringServiceUrl": "${MonitoringServiceUrl}"
+	}
+}
