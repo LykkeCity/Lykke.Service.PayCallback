@@ -8,10 +8,9 @@ using Lykke.Common.ApiLibrary.Middleware;
 using Lykke.Common.ApiLibrary.Swagger;
 using Lykke.Common.Log;
 using Lykke.Logs;
-
-// ReSharper disable once RedundantUsingDirective
 using Lykke.MonitoringServiceApiCaller;
 
+// ReSharper disable once RedundantUsingDirective
 using Lykke.Service.PayCallback.Core.Services;
 using Lykke.Service.PayCallback.Core.Settings;
 using Lykke.Service.PayCallback.Modules;
@@ -32,8 +31,8 @@ namespace Lykke.Service.PayCallback
         private ILog _log;
         private IHealthNotifier _healthNotifier;
 
-        // ReSharper disable once NotAccessedField.Local
-        private string _monitoringServiceUrl;
+    // ReSharper disable once NotAccessedField.Local
+    private string _monitoringServiceUrl;
 
         public Startup(IHostingEnvironment env)
         {
@@ -146,7 +145,7 @@ namespace Lykke.Service.PayCallback
                 _healthNotifier.Notify("Started", $"Env: {Program.EnvInfo}");
 #if !DEBUG
                 if (!string.IsNullOrEmpty(_monitoringServiceUrl))
-                    await AutoRegistrationInMonitoring.RegisterAsync(Configuration, _monitoringServiceUrl, Log);
+                    await AutoRegistrationInMonitoring.RegisterAsync(Configuration, _monitoringServiceUrl, _log);
 #endif
             }
             catch (Exception ex)
