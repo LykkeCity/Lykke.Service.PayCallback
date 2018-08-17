@@ -15,6 +15,7 @@ namespace Lykke.Service.PayCallback.Services
     public class CallbackService : ICallbackService
     {
         private readonly IPaymentCallbackRepository _paymentCallbackRepository;
+        private static readonly HttpClient HttpClient = new HttpClient();
 
         public CallbackService(IPaymentCallbackRepository paymentCallbackRepository)
         {
@@ -39,16 +40,13 @@ namespace Lykke.Service.PayCallback.Services
             if (callback == null)
                 throw new CallbackNotFoundException(model.Id);
 
-            using (var httpClient = new HttpClient())
+            string content = JsonConvert.SerializeObject(model.ToStatusApiModel(), new JsonSerializerSettings
             {
-                string content = JsonConvert.SerializeObject(model.ToStatusApiModel(), new JsonSerializerSettings
-                {
-                    ContractResolver = new CamelCasePropertyNamesContractResolver(),
-                    NullValueHandling = NullValueHandling.Include
-                });
+                ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                NullValueHandling = NullValueHandling.Include
+            });
 
-                await httpClient.PostAsync(callback.Url, new StringContent(content, Encoding.UTF8, "application/json"));
-            }
+            await HttpClient.PostAsync(callback.Url, new StringContent(content, Encoding.UTF8, "application/json"));
         }
     }
 }
