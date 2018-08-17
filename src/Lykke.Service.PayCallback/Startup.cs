@@ -16,7 +16,6 @@ using Lykke.Service.PayCallback.Core.Settings;
 using Lykke.Service.PayCallback.Modules;
 using Lykke.SettingsReader;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -145,7 +144,7 @@ namespace Lykke.Service.PayCallback
                 _healthNotifier.Notify("Started", $"Env: {Program.EnvInfo}");
 #if !DEBUG
                 if (!string.IsNullOrEmpty(_monitoringServiceUrl))
-                    await AutoRegistrationInMonitoring.RegisterAsync(Configuration, _monitoringServiceUrl, _log);
+                    await Configuration.RegisterInMonitoringServiceAsync(_monitoringServiceUrl, _healthNotifier);
 #endif
             }
             catch (Exception ex)
