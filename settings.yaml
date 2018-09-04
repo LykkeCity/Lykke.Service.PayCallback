@@ -21,7 +21,7 @@ PayCallbackService:
         types: [ Tag ]
     InvoiceConfirmationAuthorization:
         settings-key: PayCallbackService-InvoiceConfirmationAuthorization
-        types: [ Tag ]
+        types: [ Tag, Optional ]
 
 MonitoringServiceClient:
   MonitoringServiceUrl:
