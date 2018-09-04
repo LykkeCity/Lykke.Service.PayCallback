@@ -1,21 +1,28 @@
-PayCallbackService:
-  Db:
-    LogsConnString:
-      settings-key: LykkePayLogsConnString
-      types: [ AzureTableStorage ]
-    DataConnString:
-      settings-key: LykkePayDataConnString
-      types: [ AzureTableStorage ]
-  Rabbit:
-    ConnectionString:
-      settings-key: RabbitPay
-      types: [ RabbitMq ]
-    PaymentRequestsExchangeName: pay.paymentrequests
-    InvoiceConfirmationExchangeName: pay.invoiceconfirmation
-  InvoiceConfirmationUrl:
-    settings-key: LykkePay-InvoiceConfirmationUrl
-  InvoiceConfirmationAuthorization:
-    settings-key: LykkePay-InvoiceConfirmationAuthKey
+PayCallbackService: 
+    Db:
+        LogsConnString:
+            settings-key: LykkePayLogsConnString
+            types: [ AzureTableStorage, Tag ]
+        DataConnString: 
+            settings-key: LykkePayDataConnString
+            types: [ AzureTableStorage, Tag ]
+    Rabbit:
+        ConnectionString: 
+            settings-key: RabbitPay
+            types: [ RabbitMq, Tag ]
+        PaymentRequestsExchangeName: 
+            settings-key: PayCallbackService-PaymentRequestsExchangeName
+            types: [ Tag ] 
+        InvoiceConfirmationExchangeName: 
+            settings-key: PayCallbackService-InvoiceConfirmationExchangeName
+            types: [ Tag ]
+    InvoiceConfirmationUrl: 
+        settings-key: PayCallbackService-InvoiceConfirmationUrl
+        types: [ Tag ]
+    InvoiceConfirmationAuthorization:
+        settings-key: PayCallbackService-InvoiceConfirmationAuthorization
+        types: [ Tag ]
+
 MonitoringServiceClient:
   MonitoringServiceUrl:
     settings-key: MonitoringServiceUrl
