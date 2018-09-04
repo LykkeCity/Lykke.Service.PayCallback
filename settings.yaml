@@ -1,0 +1,38 @@
+PayCallbackService: 
+    Db:
+        LogsConnString:
+            settings-key: PayCallbackService-LogsConnString
+            types: [ AzureTableStorage, Tag ]
+        DataConnString: 
+            settings-key: PayCallbackService-DataConnString
+            types: [ AzureTableStorage, Tag ]
+    Rabbit:
+        ConnectionString: 
+            settings-key: GeneralRabbitMqConnectionString
+            types: [ RabbitMq, Tag ]
+        PaymentRequestsExchangeName: 
+            settings-key: PayCallbackService-PaymentRequestsExchangeName
+            types: [ Tag ] 
+        InvoiceConfirmationExchangeName: 
+            settings-key: PayCallbackService-InvoiceConfirmationExchangeName
+            types: [ Tag ]
+    InvoiceConfirmationUrl: 
+        settings-key: PayCallbackService-InvoiceConfirmationUrl
+        types: [ Tag ]
+    InvoiceConfirmationAuthorization:
+        settings-key: PayCallbackService-InvoiceConfirmationAuthorization
+        types: [ Tag ]
+
+MonitoringServiceClient:
+  MonitoringServiceUrl:
+    settings-key: MonitoringServiceUrl
+    types: [ Tag ]
+
+SlackNotifications:
+  AzureQueue:
+    ConnectionString:
+      settings-key: SlackNotificationsConnString
+      types: [ AzureTableStorage ]
+    QueueName:
+      settings-key: SlackQueueName
+      types: [ AzureTableStorage ]
