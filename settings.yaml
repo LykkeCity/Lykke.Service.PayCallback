@@ -1,14 +1,14 @@
 PayCallbackService: 
     Db:
         LogsConnString:
-            settings-key: PayCallbackService-LogsConnString
+            settings-key: LykkePayLogsConnString
             types: [ AzureTableStorage, Tag ]
         DataConnString: 
-            settings-key: PayCallbackService-DataConnString
+            settings-key: LykkePayDataConnString
             types: [ AzureTableStorage, Tag ]
     Rabbit:
         ConnectionString: 
-            settings-key: GeneralRabbitMqConnectionString
+            settings-key: RabbitPay
             types: [ RabbitMq, Tag ]
         PaymentRequestsExchangeName: 
             settings-key: PayCallbackService-PaymentRequestsExchangeName
