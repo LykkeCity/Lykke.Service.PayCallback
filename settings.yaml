@@ -11,7 +11,7 @@ PayCallbackService:
             settings-key: RabbitPay
             types: [ RabbitMq, Tag ]
         PaymentRequestsExchangeName: 
-            settings-key: PayCallbackService-PaymentRequestsExchangeName
+            settings-key: LykkePay-PaymentRequestsExchangeName
             types: [ Tag ] 
         InvoiceConfirmationExchangeName: 
             settings-key: PayCallbackService-InvoiceConfirmationExchangeName
