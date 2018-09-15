@@ -14,7 +14,7 @@ PayCallbackService:
             settings-key: LykkePay-PaymentRequestsExchangeName
             types: [ Tag ] 
         InvoiceConfirmationExchangeName: 
-            settings-key: PayCallbackService-InvoiceConfirmationExchangeName
+            settings-key: LykkePay-InvoiceConfirmationExchangeName
             types: [ Tag ]
     InvoiceConfirmationUrl: 
         settings-key: PayCallbackService-InvoiceConfirmationUrl
